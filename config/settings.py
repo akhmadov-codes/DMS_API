@@ -23,10 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_4#8eih7(##y20p2o_6x8!f$bb7jj$s)v6koc!t9@+o=$j-t5n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['95.130.227.102', 'localhost']
-CSRF_TRUSTED_ORIGINS = ['http://95.130.227.102:7777']
+ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = []
+CORS_ALLOW_ALL_ORIGINS = True
+
+# if DEBUG:
+#     ALLOWED_HOSTS = []
+#     CSRF_TRUSTED_ORIGINS = []
+# else:
+#     ALLOWED_HOSTS = ['95.130.227.102', 'localhost']
+#     CSRF_TRUSTED_ORIGINS = ['http://95.130.227.102:7777']
+
+
+
 
 # Application definition
 
@@ -49,7 +60,8 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     'flow_user',
     'flow_document',
-    'flow_task'       
+    'flow_task',       
+    'flow_taskres',       
 ]
 
 
@@ -165,7 +177,6 @@ REST_FRAMEWORK = {
     )
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 
 SWAGGER_SETTINGS = {
@@ -176,7 +187,7 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     },
-    'DEFAULT_API_URL': 'http://95.130.227.102:7777',
+    # 'DEFAULT_API_URL': 'http://95.130.227.102:7777',
 }
 
 

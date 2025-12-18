@@ -1,11 +1,14 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, response
 from .models import CustomUser, Department
 from .serializers import CustomUserSerializer, DepartmentSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer
+from rest_framework.response import Response
+from .serializers import MyTokenObtainPairSerializer, CustomUserSerializer, UserProfileSerializer
+from rest_framework.views import APIView
+
 
 class UserPagination(PageNumberPagination):
     page_size = 10 
@@ -31,3 +34,11 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserProfileSerializer(request.user)
+        return Response(serializer.data)

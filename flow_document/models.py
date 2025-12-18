@@ -20,8 +20,7 @@ class Sender(models.Model):
 class IncomingDocument(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('approved', 'Approved'),
+        ('attached', 'Attached'),
     ]
     user = models.ForeignKey(
         CustomUser,
@@ -30,9 +29,7 @@ class IncomingDocument(models.Model):
         blank=True, null=True
     )
     in_number = models.CharField(max_length=50, blank=True, null=True)
-    in_date = models.DateField(blank=True, null=True)
     out_number = models.CharField(max_length=50, blank=True, null=True)
-    out_date = models.DateField(blank=True, null=True)
     delivery_type = models.ForeignKey(
         DeliveryType,
         on_delete=models.SET_NULL,

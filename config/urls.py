@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/', include('flow_user.urls')),
     path('api/', include('flow_document.urls')),
     path('api/', include('flow_task.urls')),
+    path('api/', include('flow_taskres.urls')),
 
     # Swagger va Redoc
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

@@ -33,6 +33,7 @@ class Task(models.Model):
     status_choices = [
         ("pending", "Pending"),
         ("in_progress", "In Progress"),
+        ("be_rejected", "Be Rejected"),
         ("done", "Done"),
     ]
     status = models.CharField(

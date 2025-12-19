@@ -1,11 +1,11 @@
-from django.urls import path
-from .views import TaskResponseViewSet
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import TaskResponseViewSet, TaskResponseFileViewSet
 
-task_response_list = TaskResponseViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
+router = DefaultRouter()
+router.register(r'task-responses', TaskResponseViewSet, basename='task-responses')
+router.register(r'task-response-files', TaskResponseFileViewSet, basename='task-response-files')
 
 urlpatterns = [
-    path('task-responses/<int:task_id>/responses/', task_response_list, name='task-responses'),
+    path('', include(router.urls)),
 ]

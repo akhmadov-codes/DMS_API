@@ -1,21 +1,23 @@
 from rest_framework import serializers
 from .models import TaskResponse, TaskResponseFile
 
+# -------------------------------
+# TaskResponseFileSerializer
+# -------------------------------
 class TaskResponseFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskResponseFile
         fields = ['id', 'file', 'extension', 'uploaded_at']
+        read_only_fields = ['id', 'extension', 'uploaded_at']
 
+
+# -------------------------------
+# TaskResponseSerializer
+# -------------------------------
 class TaskResponseSerializer(serializers.ModelSerializer):
     files = TaskResponseFileSerializer(many=True, read_only=True)
 
-    uploaded_files = serializers.ListField(
-        child=serializers.FileField(),
-        write_only=True,
-        required=False
-    )
-
     class Meta:
         model = TaskResponse
-        fields = ['description', 'files', 'uploaded_files']
-        # ❌ 'user' va 'task' frontend’dan kelmaydi
+        fields = ['id', 'task', 'user', 'description', 'files', 'created_at']
+        read_only_fields = ['id', 'task', 'user', 'files', 'created_at']

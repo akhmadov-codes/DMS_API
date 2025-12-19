@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from .serializers import MyTokenObtainPairSerializer, CustomUserSerializer, UserProfileSerializer
 from rest_framework.views import APIView
 
-
 class UserPagination(PageNumberPagination):
     page_size = 10 
     page_size_query_param = 'page_size'

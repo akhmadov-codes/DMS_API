@@ -14,6 +14,7 @@ def user_profile_path(instance, filename):
 
 class CustomUser(AbstractUser):
     position = models.CharField(max_length=400, blank=True, null=True)
+    father_name = models.CharField(max_length=400, blank=True, null=True)
     department = models.ForeignKey(
     Department, 
     on_delete=models.SET_NULL, 

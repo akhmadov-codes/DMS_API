@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from .models import (
-    DeliveryType,
+    DeliveryType, 
+    DocumentType,
     Journal,
     Sender,
     IncomingDocument,
@@ -14,7 +15,8 @@ from .serializers import (
     JournalSerializer,
     SenderSerializer,
     IncomingDocumentSerializer,
-    AttachmentSerializer
+    AttachmentSerializer,
+    DocumentTypeSerializer
 )
 
 # ==============================
@@ -29,17 +31,20 @@ class IncomingDocumentPagination(pagination.PageNumberPagination):
 # ==============================
 # Lookup / Directory CRUD
 # ==============================
+class DocumentTypeViewSet(viewsets.ModelViewSet):
+    queryset = DocumentType.objects.all()
+    serializer_class = DocumentTypeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 class DeliveryTypeViewSet(viewsets.ModelViewSet):
     queryset = DeliveryType.objects.all()
     serializer_class = DeliveryTypeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
 class JournalViewSet(viewsets.ModelViewSet):
     queryset = Journal.objects.all()
     serializer_class = JournalSerializer
     permission_classes = [permissions.IsAuthenticated]
-
 
 class SenderViewSet(viewsets.ModelViewSet):
     queryset = Sender.objects.all()
@@ -75,6 +80,7 @@ class IncomingDocumentViewSet(viewsets.ModelViewSet):
             status=IncomingDocument.STATUS_DRAFT,
 
             delivery_type_id=data.get('delivery_type'),
+            document_type_id=data.get('document_type'),
             journal_id=data.get('journal'),
             sender_id=data.get('sender'),
         )
@@ -98,6 +104,8 @@ class IncomingDocumentViewSet(viewsets.ModelViewSet):
 
         if 'delivery_type' in data:
             document.delivery_type_id = data.get('delivery_type')
+        if 'document_type' in data:
+            document.document_type_id = data.get('document_type')
         if 'journal' in data:
             document.journal_id = data.get('journal')
         if 'sender' in data:

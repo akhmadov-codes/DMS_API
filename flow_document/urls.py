@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    DeliveryTypeViewSet,
+    DeliveryTypeViewSet, 
+    DocumentTypeViewSet,
     JournalViewSet,
     SenderViewSet,
     IncomingDocumentViewSet,
@@ -10,9 +11,10 @@ from .views import (
 
 router = DefaultRouter()
 router.register(r'delivery-types', DeliveryTypeViewSet)
+router.register(r'document-types', DocumentTypeViewSet)
 router.register(r'journals', JournalViewSet)
 router.register(r'senders', SenderViewSet)
-router.register(r'documents', IncomingDocumentViewSet)
+router.register(r'incomingdocuments', IncomingDocumentViewSet)
 router.register(r'attachments', AttachmentViewSet)
 
 urlpatterns = [

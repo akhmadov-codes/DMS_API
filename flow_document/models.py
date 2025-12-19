@@ -7,6 +7,11 @@ class DeliveryType(models.Model):
     name = models.CharField(max_length=255, unique=True)
     def __str__(self):
         return self.name
+    
+class DocumentType(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    def __str__(self):
+        return self.name
 
 
 class Journal(models.Model):
@@ -40,6 +45,13 @@ class IncomingDocument(models.Model):
     out_number = models.CharField(max_length=50, blank=True, null=True)
     delivery_type = models.ForeignKey(
         DeliveryType,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="documents"
+    )
+    document_type = models.ForeignKey(
+        DocumentType,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,

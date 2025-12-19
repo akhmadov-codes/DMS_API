@@ -1,10 +1,15 @@
 from rest_framework import serializers
-from .models import DeliveryType, Journal, Sender, IncomingDocument, Attachment
+from .models import DeliveryType, DocumentType, Journal, Sender, IncomingDocument, Attachment
 
 # ==== Lookup / Directory Models ====
 class DeliveryTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryType
+        fields = ['id', 'name']
+
+class DocumentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentType
         fields = ['id', 'name']
 
 class JournalSerializer(serializers.ModelSerializer):
@@ -37,6 +42,9 @@ class IncomingDocumentSerializer(serializers.ModelSerializer):
     delivery_type_id = serializers.PrimaryKeyRelatedField(
         queryset=DeliveryType.objects.all(), write_only=True, source='delivery_type', required=False
     )
+    document_type_id = serializers.PrimaryKeyRelatedField(
+        queryset=DocumentType.objects.all(), write_only=True, source='document_type', required=False
+    )
     journal_id = serializers.PrimaryKeyRelatedField(
         queryset=Journal.objects.all(), write_only=True, source='journal', required=False
     )
@@ -51,7 +59,8 @@ class IncomingDocumentSerializer(serializers.ModelSerializer):
         model = IncomingDocument
         fields = [
             'id', 'user', 'in_number', 'out_number',
-            'delivery_type', 'delivery_type_id',
+            'delivery_type', 'delivery_type_id', 
+            'document_type_id', 'document_type',
             'signer', 'journal', 'journal_id',
             'title', 'sender', 'sender_id',
             'summary', 'status', 'attachments',

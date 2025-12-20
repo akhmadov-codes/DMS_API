@@ -25,9 +25,14 @@ class SenderSerializer(serializers.ModelSerializer):
 
 # ==== Attachment Serializer ====
 class AttachmentSerializer(serializers.ModelSerializer):
+    document_id = serializers.PrimaryKeyRelatedField(
+        queryset=IncomingDocument.objects.all(),
+        write_only=True,
+        source='document'  # bu Attachment.document maydoniga ulanadi
+    )
     class Meta:
         model = Attachment
-        fields = ['id', 'file', 'extension', 'created_at']
+        fields = ['id', 'document_id','file', 'extension', 'created_at']
         read_only_fields = ['created_at', 'extension']
 
 
@@ -35,6 +40,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 class IncomingDocumentSerializer(serializers.ModelSerializer):
     # Nested read-only fields
     delivery_type = DeliveryTypeSerializer(read_only=True)
+    document_type = DocumentTypeSerializer(read_only=True)
     journal = JournalSerializer(read_only=True)
     sender = SenderSerializer(read_only=True)
     

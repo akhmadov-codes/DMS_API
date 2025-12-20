@@ -1,7 +1,7 @@
 from rest_framework import viewsets, response
 from .models import CustomUser, Department
 from .serializers import CustomUserSerializer, DepartmentSerializer
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -27,9 +27,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
     pagination_class = UserPagination
+
+    def create(self, request, *args, **kwargs):
+        print("Incoming JSON:", request.data)  # 👈 bu yerda konsolga chiqadi
+        return super().create(request, *args, **kwargs)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

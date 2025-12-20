@@ -127,10 +127,9 @@ class AttachmentViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """
-        Bulk file upload:
+        Single yoki bulk file upload:
         - document_id majburiy
-        - files[] → bir nechta fayl yuborish mumkin
-        - document status avtomatik attached bo'ladi
+        - status avtomatik ATTACHED
         """
         document_id = request.data.get('document_id')
         if not document_id:
@@ -138,10 +137,13 @@ class AttachmentViewSet(viewsets.ModelViewSet):
                 {"detail": "document_id field is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         document = get_object_or_404(IncomingDocument, id=document_id)
 
         files = request.FILES.getlist('files')
+        if not files and 'file' in request.FILES:
+            # Single file
+            files = [request.FILES['file']]
+
         if not files:
             return Response(
                 {"detail": "At least one file must be uploaded"},
@@ -149,8 +151,10 @@ class AttachmentViewSet(viewsets.ModelViewSet):
             )
 
         attachments = []
-        for file in files:
-            attachment = Attachment.objects.create(document=document, file=file)
+        for f in files:
+            serializer = self.get_serializer(data={'file': f, 'document_id': document.id})
+            serializer.is_valid(raise_exception=True)
+            attachment = serializer.save()
             attachments.append(attachment)
 
         # Document statusini avtomatik o‘zgartirish
@@ -164,7 +168,7 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """
         Attachment o‘chirilsa:
-        - agar boshqa attachment qolmasa → document.status = draft
+        - agar boshqa attachment qolmasa → document.status = DRAFT
         """
         attachment = self.get_object()
         document = attachment.document

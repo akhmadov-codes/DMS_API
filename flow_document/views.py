@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions, pagination, status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
@@ -51,7 +52,6 @@ class SenderViewSet(viewsets.ModelViewSet):
     serializer_class = SenderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
 # ==============================
 # IncomingDocument CRUD
 # ==============================
@@ -60,6 +60,24 @@ class IncomingDocumentViewSet(viewsets.ModelViewSet):
     serializer_class = IncomingDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = IncomingDocumentPagination
+
+    def get_queryset(self):
+        queryset = IncomingDocument.objects.all().order_by('-created_at')
+        params = self.request.query_params
+
+        in_number = params.get('in_number')
+        if in_number:
+            queryset = queryset.filter(in_number__icontains=in_number)
+
+        out_number = params.get('out_number')
+        if out_number:
+            queryset = queryset.filter(out_number__icontains=out_number)
+
+        status_param = params.get('status')
+        if status_param:
+            queryset = queryset.filter(status=status_param)
+
+        return queryset
 
     def create(self, request, *args, **kwargs):
         """
@@ -123,6 +141,7 @@ class IncomingDocumentViewSet(viewsets.ModelViewSet):
 class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all().order_by('-created_at')
     serializer_class = AttachmentSerializer
+    parser_classes = [MultiPartParser, FormParser] 
     permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):

@@ -1,6 +1,7 @@
 from django.db import models
 from flow_user.models import CustomUser
 from flow_document.models import IncomingDocument  
+from django.utils import timezone
 
 
 class Subject(models.Model):
@@ -30,19 +31,23 @@ class Task(models.Model):
         related_name="assigned_tasks",
         blank=True
     )
-    status_choices = [
-        ("pending", "Pending"),
-        ("in_progress", "In Progress"),
-        ("be_rejected", "Be Rejected"),
-        ("done", "Done"),
+    STATUS_CHOICES = [
+        ("in_progress", "Bajarilmoqda"),
+        ("be_rejected", "Bajarilmadi"),
+        ("done", "Bajarildi"),
     ]
     status = models.CharField(
         max_length=20,
-        choices=status_choices,
-        default="pending"
+        choices=STATUS_CHOICES,
+        default="in_progress"  # boshlang'ich holat
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.due_date and self.due_date < timezone.now().date() and self.status != 'done':
+            self.status = 'be_rejected'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Task: {self.subject} (Document {self.document_id})"

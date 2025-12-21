@@ -1,4 +1,4 @@
-from rest_framework import viewsets, response
+﻿from rest_framework import viewsets, response
 from .models import CustomUser, Department
 from .serializers import CustomUserSerializer, DepartmentSerializer
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from .serializers import MyTokenObtainPairSerializer, CustomUserSerializer, UserProfileSerializer
 from rest_framework.views import APIView
+from django.contrib.auth.models import Group
 
 class UserPagination(PageNumberPagination):
     page_size = 10 
@@ -27,13 +28,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    parser_classes = [JSONParser, MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     permission_classes = [IsAuthenticated]
     pagination_class = UserPagination
-
-    def create(self, request, *args, **kwargs):
-        print("Incoming JSON:", request.data)  # 👈 bu yerda konsolga chiqadi
-        return super().create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        # Foydalanuvchini yaratish va default "User" guruhini qo‘shish
+        user = serializer.save()
+        user.groups.add(Group.objects.get(name="user"))
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

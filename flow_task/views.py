@@ -35,17 +35,31 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Faqat login bo‘lgan userga tegishli tasklar
-        queryset = Task.objects.filter(assignees=self.request.user).select_related(
-            'document', 'subject'
-        ).prefetch_related('assignees').order_by('-created_at')
-
-        # Status filter query param orqali
+        user = self.request.user
+        # Agar foydalanuvchi admin yoki devonxona bo'lsa → barcha tasklar
+        if user.groups.filter(name__in=['admin', 'devonxona']).exists():
+            queryset = Task.objects.all()
+        else:
+            # Aks holda faqat assignees ichida bo‘lgan tasklar
+            queryset = Task.objects.filter(assignees=user)
+        # select_related / prefetch_related optimallashtirish
+        queryset = queryset.select_related('document', 'subject').prefetch_related('assignees').order_by('-created_at')
+        # Qo‘shimcha filterlar query param orqali
         status_param = self.request.query_params.get('status')
         if status_param:
             queryset = queryset.filter(status=status_param)
+        due_date_param = self.request.query_params.get('due_date')
+        if due_date_param:
+            queryset = queryset.filter(due_date=due_date_param)
+        assignee_param = self.request.query_params.get('assignee')
+        if assignee_param:
+            queryset = queryset.filter(assignees__id=assignee_param)
+        created_at_param = self.request.query_params.get('created_at')
+        if created_at_param:
+            queryset = queryset.filter(created_at__date=created_at_param)
 
         return queryset
+
 
     # ========== LIST with status summary ==========
     def list(self, request, *args, **kwargs):
@@ -56,11 +70,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         # Status bo‘yicha count
         counts = queryset.values('status').annotate(count=Count('id'))
         status_dict = {c['status']: c['count'] for c in counts}
-        for s in ['pending', 'in_progress', 'be_rejected', 'done']:
+        for s in ['in_progress', 'be_rejected', 'done']:
             status_dict.setdefault(s, 0)
 
         response = {
-            "pending": status_dict['pending'],
             "in_progress": status_dict['in_progress'],
             "be_rejected": status_dict['be_rejected'],
             "done": status_dict['done'],

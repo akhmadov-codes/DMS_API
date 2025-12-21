@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Task, Subject, IncomingDocument
 from flow_user.models import CustomUser
 from flow_document.serializers import IncomingDocumentSerializer
+from flow_user.serializers import CustomUserSerializer
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,7 +13,7 @@ class TaskSerializer(serializers.ModelSerializer):
     # GET uchun nested object
     document = IncomingDocumentSerializer(read_only=True)
     subject = SubjectSerializer(read_only=True)
-    assignees = serializers.StringRelatedField(many=True, read_only=True)
+    assignees = CustomUserSerializer(many=True, read_only=True)
     
     # Create/Update uchun bog'liqliklarni id orqali
     document_id = serializers.PrimaryKeyRelatedField(

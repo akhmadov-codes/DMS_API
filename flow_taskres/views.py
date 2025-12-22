@@ -1,61 +1,44 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins, status, generics
+from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-
 from .models import TaskResponse, TaskResponseFile
-from .serializers import TaskResponseSerializer, TaskResponseFileSerializer
+from .serializers import TaskResponseSerializer
 from flow_task.models import Task
 
+class TaskResponseFileDeleteView(generics.DestroyAPIView):
+    
+    queryset = TaskResponseFile.objects.all()
+    
+    permission_classes = [permissions.IsAuthenticated]
 
-# -------------------------------
-# TaskResponse ViewSet
-# -------------------------------
-class TaskResponseViewSet(viewsets.ModelViewSet):
+
+class TaskResponseViewSet(mixins.CreateModelMixin,
+                          mixins.UpdateModelMixin,
+                          mixins.DestroyModelMixin,
+                          viewsets.GenericViewSet):
+    queryset = TaskResponse.objects.all()
     serializer_class = TaskResponseSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        """
-        Faqat ma'lum task_id ga tegishli responses
-        ?task_id=<id>
-        """
-        task_id = self.request.query_params.get('task_id')
-        if not task_id:
-            return TaskResponse.objects.none()
-        return TaskResponse.objects.filter(task_id=task_id).select_related('user').prefetch_related('files').order_by('-created_at')
-
     def perform_create(self, serializer):
-        """
-        TaskResponse yaratish:
-        - task_id request.data orqali olinadi
-        - user avtomatik request.user
-        """
+        # Vue dan kelayotgan task_id orqali Taskni topish
         task_id = self.request.data.get('task_id')
         task = get_object_or_404(Task, id=task_id)
-        serializer.save(user=self.request.user, task=task)
+        
+        # Userni avtomatik biriktirish
+        response_obj = serializer.save(user=self.request.user, task=task)
 
+        # MUHIM: Vazifa statusini avtomatik "done"ga o'tkazish
+        if task.status != 'done':
+            task.status = 'done'
+            task.save()
 
-# -------------------------------
-# TaskResponseFile ViewSet
-# -------------------------------
-class TaskResponseFileViewSet(viewsets.ModelViewSet):
-    serializer_class = TaskResponseFileSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        """
-        Faqat ma'lum response_id ga tegishli fayllar
-        ?response_id=<id>
-        """
-        response_id = self.request.query_params.get('response_id')
-        if not response_id:
-            return TaskResponseFile.objects.none()
-        return TaskResponseFile.objects.filter(response_id=response_id).order_by('-uploaded_at')
-
-    def perform_create(self, serializer):
-        """
-        Fayl yaratish:
-        - response_id request.data orqali olinadi
-        """
-        response_id = self.request.data.get('response_id')
-        response = get_object_or_404(TaskResponse, id=response_id)
-        serializer.save(response=response)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Faqat o'z javobini yoki admin o'chira olishi uchun
+        if instance.user != request.user and not request.user.groups.filter(name__in=['admin', 'devonxona']).exists():
+            return Response(
+                {"detail": "Siz faqat o'z javobingizni o'chira olasiz."}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs)

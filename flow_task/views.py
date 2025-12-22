@@ -63,27 +63,39 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     # ========== LIST with status summary ==========
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page, many=True)
+        # FILTERSIZ queryset (barcha tasks)
+        user = request.user
+        if user.groups.filter(name__in=['admin', 'devonxona']).exists():
+            base_queryset = Task.objects.all()
+        else:
+            base_queryset = Task.objects.filter(assignees=user)
 
-        # Status bo‘yicha count
-        counts = queryset.values('status').annotate(count=Count('id'))
+        base_queryset = base_queryset.select_related('document', 'subject').prefetch_related('assignees')
+
+        # STATUS STATISTIKA
+        counts = base_queryset.values('status').annotate(count=Count('id'))
         status_dict = {c['status']: c['count'] for c in counts}
         for s in ['in_progress', 'be_rejected', 'done']:
             status_dict.setdefault(s, 0)
 
-        response = {
+        # FILTERED queryset
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+
+        # ✅ count → FILTERSIZ, barcha tasks
+        total_count = base_queryset.count()
+
+        return Response({
             "in_progress": status_dict['in_progress'],
             "be_rejected": status_dict['be_rejected'],
             "done": status_dict['done'],
             "results": serializer.data,
-            "count": self.paginator.page.paginator.count if page else len(serializer.data),
+            "count": total_count,
             "next": self.paginator.get_next_link() if page else None,
-            "previous": self.paginator.get_previous_link() if page else None
-        }
+            "previous": self.paginator.get_previous_link() if page else None,
+        })
 
-        return Response(response)
 
     # ========== CREATE ==========
     def perform_create(self, serializer):

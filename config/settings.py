@@ -161,7 +161,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'      # DMS_API/static papkasi
 
 # MEDIA
-MEDIA_URL = '/media/'
+MEDIA_URL = 'http://95.130.227.102:8008/media/'
 MEDIA_ROOT = BASE_DIR / 'media'        # DMS_API/media papkasi
 
 

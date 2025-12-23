@@ -10,6 +10,7 @@ build/
 
 # Virtual environment
 venv/
+flow_venv/
 env/
 ENV/
 *.venv

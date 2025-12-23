@@ -1,4 +1,4 @@
-from rest_framework import serializers
+﻿from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser, Department
 from django.contrib.auth.models import Group
@@ -8,6 +8,13 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = [ 'id', 'name' ]
 
+class TaskAssigneeSerializer(serializers.ModelSerializer):
+    """Faqat ism-sharif va bo'limni qaytaruvchi serializer"""
+    department_name = serializers.ReadOnlyField(source='department.name')
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'last_name', 'first_name', 'father_name', 'department_name']
 
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(

@@ -11,13 +11,13 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import Group
 
 class UserPagination(PageNumberPagination):
-    page_size = 10 
+    page_size = 150
     page_size_query_param = 'page_size'
-    max_page_size = 50
+    max_page_size = 150
 class DepartmentPagination(PageNumberPagination):
-    page_size = 10 
+    page_size = 200
     page_size_query_param = 'page_size'
-    max_page_size = 50
+    max_page_size = 200
 
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()

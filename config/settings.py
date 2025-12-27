@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -23,19 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_4#8eih7(##y20p2o_6x8!f$bb7jj$s)v6koc!t9@+o=$j-t5n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['95.130.227.102', 'localhost']
-CSRF_TRUSTED_ORIGINS = []
-CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = ['http://95.130.227.102:8008']
-# if DEBUG:
-#     ALLOWED_HOSTS = []
-#     CSRF_TRUSTED_ORIGINS = []
-# else:
-#     ALLOWED_HOSTS = ['95.130.227.102', 'localhost']
-#     CSRF_TRUSTED_ORIGINS = ['http://95.130.227.102:7777']
-
 
 # Application definition
 
@@ -53,6 +42,7 @@ INSTALLED_APPS += [
     'rest_framework_simplejwt',
     'corsheaders',  
     'drf_yasg',   
+    'django_filters',
 ]
 
 INSTALLED_APPS += [
@@ -98,26 +88,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if DEBUG:
-    # LOCAL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    # SERVER (PostgreSQL)
-    DATABASES = {
-        'default': {
+DATABASES = {
+    'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'dms_db',
             'USER': 'postgres',
-            'PASSWORD': '123456',
+            'PASSWORD': '@dmin#123',
             'HOST': 'localhost',
             'PORT': '5432',
-        }
     }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -156,10 +137,12 @@ USE_TZ = True
 
 # STATIC
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'      # DMS_API/static papkasi
-
+STATIC_ROOT = BASE_DIR / 'static-admin'      # DMS_API/static papkasi
 # MEDIA
+
+# MEDIA_URL = '/media/'
 MEDIA_URL = 'http://95.130.227.102:8008/media/'
+
 MEDIA_ROOT = BASE_DIR / 'media'        # DMS_API/media papkasi
 
 
@@ -167,6 +150,9 @@ MEDIA_ROOT = BASE_DIR / 'media'        # DMS_API/media papkasi
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CUSTOM SITTINGS
+
 AUTH_USER_MODEL = "flow_user.CustomUser"
 
 REST_FRAMEWORK = {
@@ -174,8 +160,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
-
-
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -185,9 +169,10 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     },
-    # 'DEFAULT_API_URL': 'http://95.130.227.102:7777',
+    'USE_SESSION_AUTH': False, # Session authni o'chirish JWT bilan ishlashda xatolarni kamaytiradi
+    'JSON_EDITOR': True,
+    'DEFAULT_API_URL': 'http://95.130.227.102:8008',
 }
-
 
 
 from datetime import timedelta
@@ -200,4 +185,15 @@ SIMPLE_JWT = {
 }
 
 USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://95.130.227.102:8008',
+    'http://95.130.227.102:2022',
+    'http://localhost:5173',  # MUHIM: Vue/Vite manzili
+    'http://127.0.0.1:5173',
+]
+
+CORS_ALLOW_ALL_ORIGINS = True

@@ -1,36 +1,29 @@
-from rest_framework import viewsets, permissions, pagination, status
+from django.shortcuts import get_object_or_404
+from django.db import transaction
+from rest_framework import viewsets, permissions, pagination, status, filters
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import (
-    DeliveryType, 
-    DocumentType,
-    Journal,
-    Sender,
-    IncomingDocument,
-    Attachment
+    DeliveryType, DocumentType, Journal, 
+    Sender, IncomingDocument, Attachment
 )
 from .serializers import (
-    DeliveryTypeSerializer,
-    JournalSerializer,
-    SenderSerializer,
-    IncomingDocumentSerializer,
-    AttachmentSerializer,
-    DocumentTypeSerializer
+    DeliveryTypeSerializer, JournalSerializer, SenderSerializer,
+    IncomingDocumentSerializer, AttachmentSerializer, DocumentTypeSerializer
 )
 
 # ==============================
-# Pagination
+# Pagination (O'zgarishsiz qoldi)
 # ==============================
 class IncomingDocumentPagination(pagination.PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 100
 
-
 # ==============================
-# Lookup / Directory CRUD
+# Lookup ViewSets (Kodni qisqartirdik)
 # ==============================
 class DocumentTypeViewSet(viewsets.ModelViewSet):
     queryset = DocumentType.objects.all()
@@ -53,149 +46,93 @@ class SenderViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 # ==============================
-# IncomingDocument CRUD
+# IncomingDocument CRUD (Optimallashgan)
 # ==============================
 class IncomingDocumentViewSet(viewsets.ModelViewSet):
-    queryset = IncomingDocument.objects.all().order_by('-created_at')
     serializer_class = IncomingDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = IncomingDocumentPagination
+    
+    # DjangoFilterBackend Vue'dan keladigan filtrlarni avtomatik boshqaradi
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = {
+        'status': ['exact'],
+        'delivery_type': ['exact'],
+        'document_type': ['exact'],
+        'journal': ['exact'],
+        'sender': ['exact'],
+        'in_number': ['exact', 'icontains'], # Vue yuborayotgan filtrlar uchun
+        'out_number': ['exact', 'icontains'],
+    }
+    search_fields = ['in_number', 'out_number', 'title', 'signer']
 
     def get_queryset(self):
-        queryset = IncomingDocument.objects.all().order_by('-created_at')
-        params = self.request.query_params
-
-        in_number = params.get('in_number')
-        if in_number:
-            queryset = queryset.filter(in_number__icontains=in_number)
-
-        out_number = params.get('out_number')
-        if out_number:
-            queryset = queryset.filter(out_number__icontains=out_number)
-
-        status_param = params.get('status')
-        if status_param:
-            queryset = queryset.filter(status=status_param)
-
-        return queryset
-
-    def create(self, request, *args, **kwargs):
         """
-        Yangi hujjat yaratish:
-        - user avtomatik
-        - status har doim DRAFT
-        - FK lar ID orqali qabul qilinadi
+        N+1 muammosini hal qilish uchun select_related va prefetch_related qo'shildi.
+        Bu Vue'dagi ro'yxatni yuklash tezligini bir necha barobar oshiradi.
         """
-        data = request.data
+        return IncomingDocument.objects.select_related(
+            'delivery_type', 'document_type', 'journal', 'sender', 'user'
+        ).prefetch_related('attachments').all().order_by('-created_at')
 
-        document = IncomingDocument.objects.create(
-            user=request.user,
-            in_number=data.get('in_number'),
-            out_number=data.get('out_number'),
-            signer=data.get('signer'),
-            title=data.get('title'),
-            summary=data.get('summary'),
-            status=IncomingDocument.STATUS_DRAFT,
-
-            delivery_type_id=data.get('delivery_type'),
-            document_type_id=data.get('document_type'),
-            journal_id=data.get('journal'),
-            sender_id=data.get('sender'),
-        )
-
-        serializer = self.get_serializer(document)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def update(self, request, *args, **kwargs):
+    def perform_create(self, serializer):
         """
-        Hujjatni tahrirlash (PUT / PATCH):
-        - status bu yerda o‘zgarmaydi
+        Vue'dan kelgan ma'lumotlarni serializer orqali validatsiya qilib saqlaydi.
+        User va Status avtomatik biriktiriladi.
         """
-        document = self.get_object()
-        data = request.data
+        serializer.save(user=self.request.user, status=IncomingDocument.STATUS_DRAFT)
 
-        document.in_number = data.get('in_number', document.in_number)
-        document.out_number = data.get('out_number', document.out_number)
-        document.signer = data.get('signer', document.signer)
-        document.title = data.get('title', document.title)
-        document.summary = data.get('summary', document.summary)
-
-        if 'delivery_type' in data:
-            document.delivery_type_id = data.get('delivery_type')
-        if 'document_type' in data:
-            document.document_type_id = data.get('document_type')
-        if 'journal' in data:
-            document.journal_id = data.get('journal')
-        if 'sender' in data:
-            document.sender_id = data.get('sender')
-
-        document.save()
-
-        serializer = self.get_serializer(document)
-        return Response(serializer.data)
-
+    def perform_update(self, serializer):
+        """
+        Update paytida status o'zgarmasligini ta'minlaydi (Vue logikasi bo'yicha).
+        """
+        serializer.save()
 
 # ==============================
-# Attachment CRUD
+# Attachment CRUD (Optimallashgan)
 # ==============================
 class AttachmentViewSet(viewsets.ModelViewSet):
-    queryset = Attachment.objects.all().order_by('-created_at')
+    queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
-    parser_classes = [MultiPartParser, FormParser] 
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [permissions.IsAuthenticated]
 
+    @transaction.atomic # Ma'lumotlar butunligini ta'minlash uchun
     def create(self, request, *args, **kwargs):
-        """
-        Single yoki bulk file upload:
-        - document_id majburiy
-        - status avtomatik ATTACHED
-        """
         document_id = request.data.get('document_id')
         if not document_id:
-            return Response(
-                {"detail": "document_id field is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "document_id field is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
         document = get_object_or_404(IncomingDocument, id=document_id)
-
-        files = request.FILES.getlist('files')
-        if not files and 'file' in request.FILES:
-            # Single file
-            files = [request.FILES['file']]
+        files = request.FILES.getlist('files') or request.FILES.getlist('file')
 
         if not files:
-            return Response(
-                {"detail": "At least one file must be uploaded"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"detail": "At least one file must be uploaded"}, status=status.HTTP_400_BAD_REQUEST)
 
-        attachments = []
-        for f in files:
-            serializer = self.get_serializer(data={'file': f, 'document_id': document.id})
-            serializer.is_valid(raise_exception=True)
-            attachment = serializer.save()
-            attachments.append(attachment)
+        # Bulk create: Har bir fayl uchun alohida so'rov o'rniga bitta so'rovda saqlash
+        attachments_to_create = [
+            Attachment(document=document, file=f) for f in files
+        ]
+        created_attachments = Attachment.objects.bulk_create(attachments_to_create)
 
-        # Document statusini avtomatik o‘zgartirish
-        if document.status == IncomingDocument.STATUS_DRAFT and attachments:
+        # Statusni yangilash
+        if document.status == IncomingDocument.STATUS_DRAFT:
             document.status = IncomingDocument.STATUS_ATTACHED
             document.save(update_fields=['status'])
 
-        serializer = self.get_serializer(attachments, many=True)
+        # Vue kutgan formatdagi javobni qaytarish
+        serializer = self.get_serializer(created_attachments, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
-        """
-        Attachment o‘chirilsa:
-        - agar boshqa attachment qolmasa → document.status = DRAFT
-        """
         attachment = self.get_object()
         document = attachment.document
+        
+        response = super().destroy(request, *args, **kwargs)
 
-        attachment.delete()
-
+        # Agar bu oxirgi fayl bo'lsa, statusni qaytaramiz
         if not document.attachments.exists():
             document.status = IncomingDocument.STATUS_DRAFT
             document.save(update_fields=['status'])
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return response

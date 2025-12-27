@@ -1,9 +1,12 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from django.db.models import Count
+from django.db.models import Count, Q
 from .models import Task, Subject
 from .serializers import TaskSerializer, SubjectSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+import django_filters  # <--- Buni qo'shing
 
 # ==============================
 # Pagination
@@ -24,106 +27,70 @@ class SubjectViewSet(viewsets.ModelViewSet):
 # ==============================
 # Task CRUD
 # ==============================
+class TaskFilter(django_filters.FilterSet):
+    status = django_filters.CharFilter(field_name="status")
+    due_date = django_filters.DateFilter(field_name="due_date")
+    assignee = django_filters.NumberFilter(field_name="assignees__id")
+    created_at = django_filters.DateFilter(field_name="created_at", lookup_expr='date')
+
+    class Meta:
+        model = Task
+        fields = ['status', 'due_date', 'assignee', 'created_at']
+
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     pagination_class = TaskPagination
     permission_classes = [permissions.IsAuthenticated]
+    
+    # Backendlarni ulash
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = TaskFilter
+    search_fields = ['document__title', 'description', 'document__in_number']
+    ordering_fields = ['created_at', 'due_date']
 
     def get_queryset(self):
         user = self.request.user
         
-        # 1. Permission asosida boshlang'ich queryset
+        # Ruxsatlar (bu qism o'zgarmaydi)
         if user.groups.filter(name__in=['admin', 'devonxona']).exists():
             queryset = Task.objects.all()
         else:
-            # 2. Oddiy foydalanuvchi faqat o'zi ijrochi bo'lgan tasklarni ko'radi
-            # .distinct() takroriy tasklar chiqib qolishining oldini oladi
-            queryset = Task.objects.filter(assignees=user).distinct()
+            queryset = Task.objects.filter(assignees=user)
 
-        # 2. OPTIMIZATSIYA (select_related va prefetch_related)
-        # Bitta so'rovda Task -> Document -> Responses -> Files hammasini olib keladi
-        queryset = queryset.select_related(
-            'document', 
-            'subject', 
-            'document__delivery_type', 
-            'document__document_type', 
-            'document__journal', 
-            'document__sender'
+        # Faqat optimallashtirish qoladi
+        return queryset.select_related(
+            'document', 'subject', 
+            'document__delivery_type', 'document__document_type', 
+            'document__journal', 'document__sender'
         ).prefetch_related(
             'assignees', 
-            'responses__user',      # TaskResponse'ni kim yozganini olish
-            'responses__files',     # TaskResponse'ga tegishli fayllarni olish
-            'document__attachments' # Asosiy hujjat fayllarini olish
-        ).distinct().order_by('-created_at')
+            'responses__user', 
+            'responses__files', 
+            'document__attachments'
+        ).distinct()
 
-        # 3. Filtrlash (Query Params)
-        status_param = self.request.query_params.get('status')
-        if status_param:
-            queryset = queryset.filter(status=status_param)
-            
-        due_date_param = self.request.query_params.get('due_date')
-        if due_date_param:
-            queryset = queryset.filter(due_date=due_date_param)
-            
-        assignee_param = self.request.query_params.get('assignee')
-        if assignee_param:
-            queryset = queryset.filter(assignees__id=assignee_param)
-            
-        created_at_param = self.request.query_params.get('created_at')
-        if created_at_param:
-            queryset = queryset.filter(created_at__date=created_at_param)
-
-        return queryset
-
-    # ========== LIST with status summary ==========
     def list(self, request, *args, **kwargs):
+        # 1. Statistika (Filtrlardan tashqari umumiy sanoq)
         user = request.user
+        stat_qs = Task.objects.all() if user.groups.filter(name__in=['admin', 'devonxona']).exists() else Task.objects.filter(assignees=user)
         
-        # 1. Statistika uchun yengil query
-        if user.groups.filter(name__in=['admin', 'devonxona']).exists():
-            stat_qs = Task.objects.all()
-        else:
-            stat_qs = Task.objects.filter(assignees=user)
+        stats = stat_qs.aggregate(
+            all_tasks=Count('id'),
+            in_progress=Count('id', filter=Q(status='in_progress')),
+            in_confirmation=Count('id', filter=Q(status='in_confirmation')),
+            be_rejected=Count('id', filter=Q(status='be_rejected')),
+            done=Count('id', filter=Q(status='done'))
+        )
 
-        counts = stat_qs.values('status').annotate(count=Count('id'))
-        status_dict = {c['status']: c['count'] for c in counts}
-        for s in ['in_progress', 'be_rejected', 'done']:
-            status_dict.setdefault(s, 0)
-
-        # 2. Asosiy ma'lumotlarni olish
+        # 2. DjangoFilterBackend avtomatik filtrlangan querysetni beradi
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
         
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            # Standart paginatsiyani chaqiramiz
             response = self.get_paginated_response(serializer.data)
-            # Paginatsiya natijasiga (response.data) statistika maydonlarini qo'shamiz
-            response.data['in_progress'] = status_dict['in_progress']
-            response.data['be_rejected'] = status_dict['be_rejected']
-            response.data['done'] = status_dict['done']
+            response.data.update(stats)
             return response
 
-        # Agar paginatsiya ishlamasa (masalan, hamma ma'lumot bitta sahifada bo'lsa)
         serializer = self.get_serializer(queryset, many=True)
-        return Response({
-            "in_progress": status_dict['in_progress'],
-            "be_rejected": status_dict['be_rejected'],
-            "done": status_dict['done'],
-            "count": queryset.count(),
-            "results": serializer.data
-        })
-
-    # ========== CREATE ==========
-    def perform_create(self, serializer):
-        assignees_ids = self.request.data.get('assignees_ids', [])
-        task = serializer.save()
-        if assignees_ids:
-            task.assignees.set(assignees_ids)
-
-    # ========== UPDATE ==========
-    def perform_update(self, serializer):
-        assignees_ids = self.request.data.get('assignees_ids', None)
-        task = serializer.save()
-        if assignees_ids is not None:
-            task.assignees.set(assignees_ids)
+        return Response({**stats, "results": serializer.data})

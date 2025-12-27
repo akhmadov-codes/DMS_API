@@ -10,12 +10,16 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r'delivery-types', DeliveryTypeViewSet)
-router.register(r'document-types', DocumentTypeViewSet)
-router.register(r'journals', JournalViewSet)
-router.register(r'senders', SenderViewSet)
-router.register(r'incomingdocuments', IncomingDocumentViewSet)
-router.register(r'attachments', AttachmentViewSet)
+# Vue'dagi manzillar o'zgarmasligi uchun r'...' qismidagi nomlarni asl holida qoldiramiz
+router.register(r'delivery-types', DeliveryTypeViewSet, basename='delivery-type')
+router.register(r'document-types', DocumentTypeViewSet, basename='document-type')
+router.register(r'journals', JournalViewSet, basename='journal')
+router.register(r'senders', SenderViewSet, basename='sender')
+
+# SIZNING ASL NOMINGIZ: incomingdocuments
+router.register(r'incomingdocuments', IncomingDocumentViewSet, basename='incomingdocument')
+
+router.register(r'attachments', AttachmentViewSet, basename='attachment')
 
 urlpatterns = [
     path('', include(router.urls)),

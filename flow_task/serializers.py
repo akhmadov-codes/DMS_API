@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Task, Subject, IncomingDocument
 from flow_user.models import CustomUser
 from flow_document.serializers import IncomingDocumentSerializer
-from flow_user.serializers import CustomUserSerializer, TaskAssigneeSerializer
+from flow_user.serializers import TaskAssigneeSerializer
 from flow_taskres.serializers import TaskResponseSerializer
 
 class SubjectSerializer(serializers.ModelSerializer):

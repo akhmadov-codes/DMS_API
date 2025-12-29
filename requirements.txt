@@ -6,3 +6,4 @@ drf-yasg
 psycopg2-binary
 Pillow
 django-filter
+django-import-export

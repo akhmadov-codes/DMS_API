@@ -43,6 +43,7 @@ INSTALLED_APPS += [
     'corsheaders',  
     'drf_yasg',   
     'django_filters',
+    'import_export',
 ]
 
 INSTALLED_APPS += [

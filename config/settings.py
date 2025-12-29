@@ -88,7 +88,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
+if DEBUG:
+    DATABASES = {
+    'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'dms_db',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'HOST': 'localhost',
+            'PORT': '5432',
+    }
+}
+else:
+     DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'dms_db',
@@ -98,17 +110,8 @@ DATABASES = {
             'PORT': '5432',
     }
 }
+    
 
-# DATABASES = {
-#     'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'dms_db',
-#             'USER': 'postgres',
-#             'PASSWORD': 'root',
-#             'HOST': 'localhost',
-#             'PORT': '5432',
-#     }
-# }
 
 
 # Password validation
@@ -203,3 +206,18 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+
+import os
+import logging
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+LOG_FILE = os.path.join(BASE_DIR, "server_errors.log")  # loyihaning rootida fayl
+
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.ERROR,  # faqat ERROR va yuqori loglar
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import DeliveryType, DocumentType, Journal, Sender, IncomingDocument, Attachment
+import os
 
 # ==== Lookup Models ==== 
 # Bu yerda o'zgarishsiz qoldirdik, chunki ular oddiy
@@ -7,38 +8,41 @@ class DeliveryTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryType
         fields = ['id', 'name']
-
 class DocumentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DocumentType
         fields = ['id', 'name']
-
 class JournalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Journal
         fields = ['id', 'name']
-
 class SenderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sender
         fields = ['id', 'name']
-
 # ==== Attachment Serializer ====
 class AttachmentSerializer(serializers.ModelSerializer):
-    # document_id ni kiritishda xatolik bo'lmasligi uchun source ni aniq ko'rsatamiz
     document_id = serializers.PrimaryKeyRelatedField(
         queryset=IncomingDocument.objects.all(),
         write_only=True,
         source='document'
     )
-    # Fayl URL manzili to'liq chiqishi uchun absolute URI avtomatik ishlaydi
     class Meta:
         model = Attachment
         fields = ['id', 'document_id', 'file', 'extension', 'created_at']
         read_only_fields = ['created_at', 'extension']
+    def to_representation(self, instance):
+        """
+        Agar bulk_create sababli bazada extension bo'sh qolgan bo'lsa,
+        uni foydalanuvchiga yuborishdan oldin aniqlab beradi.
+        """
+        ret = super().to_representation(instance)
+        # Agar extension bo'sh bo'lsa, fayl nomidan olamiz
+        if not ret.get('extension') and instance.file:
+            _, ext = os.path.splitext(instance.file.name)
+            ret['extension'] = ext.lower().lstrip('.')
+        return ret
 
-from rest_framework import serializers
-from .models import DeliveryType, DocumentType, Journal, Sender, IncomingDocument, Attachment
 
 class IncomingDocumentSerializer(serializers.ModelSerializer):
     # 1. READ-ONLY: Ro'yxatda va Tahrirlashda Vue obyekt ichidan .name ni o'qishi uchun
@@ -47,7 +51,6 @@ class IncomingDocumentSerializer(serializers.ModelSerializer):
     journal = JournalSerializer(read_only=True)
     sender = SenderSerializer(read_only=True)
     attachments = AttachmentSerializer(many=True, read_only=True)
-    
     # 2. WRITE-ONLY: Vue handleSubmit yuborgan ID larni qabul qilish uchun
     # source='...' qismi bu ID larni modeldagi ForeignKey maydonlariga bog'laydi
     delivery_type_id = serializers.PrimaryKeyRelatedField(
@@ -62,20 +65,13 @@ class IncomingDocumentSerializer(serializers.ModelSerializer):
     sender_id = serializers.PrimaryKeyRelatedField(
         queryset=Sender.objects.all(), source='sender', write_only=True, required=False, allow_null=True
     )
-
     class Meta:
         model = IncomingDocument
         fields = [
-            'id', 'user', 'in_number', 'in_date', 'out_number',
-            'delivery_type', 'delivery_type_id', 
-            'document_type', 'document_type_id',
-            'journal', 'journal_id',
-            'sender', 'sender_id',
-            'signer', 'title', 'summary', 'status', 'attachments',
-            'created_at', 'updated_at'
+            'id', 'user', 'in_number', 'in_date', 'out_number', 'delivery_type', 'delivery_type_id', 'document_type', 'document_type_id',
+            'journal', 'journal_id', 'sender', 'sender_id', 'signer', 'title', 'summary', 'status', 'attachments', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at', 'status', 'user']
-
     def to_representation(self, instance):
         """
         Vue tahrirlash (Edit) oynasini ochganda `props.selectedFile.delivery_type.id` 

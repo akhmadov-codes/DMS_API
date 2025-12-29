@@ -42,7 +42,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
         return Response(serializer.data)

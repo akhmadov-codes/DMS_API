@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_4#8eih7(##y20p2o_6x8!f$bb7jj$s)v6koc!t9@+o=$j-t5n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['95.130.227.102', 'localhost']
 
@@ -88,12 +88,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'dms_db',
+#             'USER': 'postgres',
+#             'PASSWORD': '@dmin#123',
+#             'HOST': 'localhost',
+#             'PORT': '5432',
+#     }
+# }
+
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'dms_db',
             'USER': 'postgres',
-            'PASSWORD': '@dmin#123',
+            'PASSWORD': 'root',
             'HOST': 'localhost',
             'PORT': '5432',
     }
@@ -171,7 +182,7 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH': False, # Session authni o'chirish JWT bilan ishlashda xatolarni kamaytiradi
     'JSON_EDITOR': True,
-    'DEFAULT_API_URL': 'http://95.130.227.102:8008',
+    # 'DEFAULT_API_URL': 'http://95.130.227.102:8008',
 }
 
 

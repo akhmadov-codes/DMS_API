@@ -5,11 +5,6 @@ from django.utils import timezone
 
 class Subject(models.Model):
     title = models.CharField(max_length=250, verbose_name="Mavzu nomi")
-    
-    class Meta:
-        verbose_name = "Mavzu"
-        verbose_name_plural = "Mavzular"
-
     def __str__(self):
         return self.title
 
@@ -20,14 +15,12 @@ class Task(models.Model):
         ("be_rejected", "Rad etildi"), # Muddati o'tgan yoki rad etilgan
         ("done", "Bajarildi"),
     ]
-
     PRIORITY_CHOICES = [
         ("low", "Past"),
         ("medium", "O'rta"),
         ("high", "Yuqori"),
         ("urgent", "Shoshilinch"),
     ]
-
     document = models.ForeignKey(
         IncomingDocument,
         on_delete=models.CASCADE,
@@ -74,11 +67,5 @@ class Task(models.Model):
         if self.due_date and self.due_date < timezone.now().date() and self.status != 'done':
             return True
         return False
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = "Vazifa"
-        verbose_name_plural = "Vazifalar"
-
     def __str__(self):
         return f"{self.subject} - {self.status}"

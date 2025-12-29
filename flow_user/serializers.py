@@ -7,11 +7,9 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = [ 'id', 'name' ]
-
 class TaskAssigneeSerializer(serializers.ModelSerializer):
     """Faqat ism-sharif va bo'limni qaytaruvchi serializer"""
     department_name = serializers.ReadOnlyField(source='department.name')
-
     class Meta:
         model = CustomUser
         fields = ['id', 'last_name', 'first_name', 'father_name', 'department_name']

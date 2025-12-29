@@ -9,10 +9,7 @@ class TaskResponseFileSerializer(serializers.ModelSerializer):
 
 class TaskResponseSerializer(serializers.ModelSerializer):
     files = TaskResponseFileSerializer(many=True, read_only=True)
-    uploaded_files = serializers.ListField(
-        child=serializers.FileField(allow_empty_file=False),
-        write_only=True, required=False
-    )
+    uploaded_files = serializers.ListField( child=serializers.FileField(allow_empty_file=False), write_only=True, required=False)
     user_full_name = serializers.ReadOnlyField(source='user.get_full_name')
 
     class Meta:

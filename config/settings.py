@@ -103,7 +103,7 @@ else:
      DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'dms_db',
+            'NAME': 'dms_db_utf8',
             'USER': 'postgres',
             'PASSWORD': '@dmin#123',
             'HOST': 'localhost',

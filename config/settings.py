@@ -208,14 +208,13 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-
-
+# faqat ERROR va yuqori loglar
 import os
 import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-LOG_FILE = os.path.join(BASE_DIR, "server_errors.log")  # loyihaning rootida fayl
+LOG_FILE = os.path.join(BASE_DIR, "log/server_errors.log")  # loyihaning rootida fayl
 
 logging.basicConfig(
     filename=LOG_FILE,

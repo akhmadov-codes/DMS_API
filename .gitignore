@@ -11,7 +11,8 @@ build/
 # Virtual environment
 venv/
 flow_venv/
-log/
+logs/*
+!logs/.gitkeep
 env/
 ENV/
 *.venv

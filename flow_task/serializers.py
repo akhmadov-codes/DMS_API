@@ -28,11 +28,16 @@ class TaskSerializer(serializers.ModelSerializer):
         write_only=True,
         source='subject'
     )
-    assignees_ids = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(),
-        many=True,
+    # assignees_ids = serializers.PrimaryKeyRelatedField(
+    #     queryset=CustomUser.objects.all(),
+    #     many=True,
+    #     write_only=True,
+    #     source='assignees'
+    # )
+    assignees_ids = serializers.ListField(
+        child=serializers.CharField(), 
         write_only=True,
-        source='assignees'
+        required=False
     )
 
     class Meta:

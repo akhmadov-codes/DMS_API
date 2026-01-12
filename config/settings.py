@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_4#8eih7(##y20p2o_6x8!f$bb7jj$s)v6koc!t9@+o=$j-t5n'
+SECRET_KEY = 'cmf*-v+=2m5pc%4xu_e7fu(^ppzs7sn1_&4f+j^2$t_69)*+4e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -40,8 +40,8 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     'rest_framework',
     'rest_framework_simplejwt',
-    'corsheaders',  
-    'drf_yasg',   
+    'corsheaders',
+    'drf_yasg',
     'django_filters',
     'import_export',
 ]
@@ -49,8 +49,8 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     'flow_user',
     'flow_document',
-    'flow_task',       
-    'flow_taskres',       
+    'flow_task',
+    'flow_taskres',
 ]
 
 
@@ -111,7 +111,7 @@ else:
             'PORT': '5432',
     }
 }
-    
+
 
 
 
@@ -221,3 +221,18 @@ logging.basicConfig(
     level=logging.ERROR,  # faqat ERROR va yuqori loglar
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
+
+
+# # Faqat production (server) muhitida ishlashi uchun DEBUG false bo'lganda yoqamiz
+# if not DEBUG:
+#     # W008: Barcha HTTP so'rovlarni HTTPSga yo'naltirish
+#     SECURE_SSL_REDIRECT = True
+#     # W012: Sessiya kuki-fayllarini faqat HTTPS orqali yuborish
+#     SESSION_COOKIE_SECURE = True
+#     # W016: CSRF kuki-fayllarini faqat HTTPS orqali yuborish
+#     CSRF_COOKIE_SECURE = True
+#     # W004: HSTS sozlamasi (Brauzerga doim HTTPSdan foydalanishni buyuradi)
+#     # Diqqat: Buni faqat saytingiz SSLda muammosiz ishlayotganiga amin bo'lsangiz yoqing
+#     SECURE_HSTS_SECONDS = 31536000 # 1 yil
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#     SECURE_HSTS_PRELOAD = True

@@ -25,6 +25,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['api-edo.tipme.uz', '172.16.0.6', '195.158.20.90', 'localhost', '127.0.0.1']
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = [
@@ -180,6 +181,7 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH': False, # Session authni o'chirish JWT bilan ishlashda xatolarni kamaytiradi
     'JSON_EDITOR': True,
+    'PERSIST_AUTH': True,
     'DEFAULT_API_URL': 'https://api-edo.tipme.uz/',
 }
 

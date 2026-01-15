@@ -13,6 +13,7 @@ schema_view = get_schema_view(
         default_version='v1',
         description="Document Flow Project API documentation",
     ),
+    url='https://api-edo.tipme.uz/',
     public=True,  # Swagger UI hamma uchun ko‘rinadi
     permission_classes=[permissions.AllowAny],  # Swagger UI ochiq
     authentication_classes=[],

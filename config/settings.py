@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,7 +23,7 @@ SECRET_KEY = 'cmf*-v+=2m5pc%4xu_e7fu(^ppzs7sn1_&4f+j^2$t_69)*+4e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['95.130.227.102', 'localhost']
+ALLOWED_HOSTS = ['api-edo.tipme.uz', 'localhost']
 
 # Application definition
 
@@ -105,8 +104,8 @@ else:
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'dms_db_utf8',
-            'USER': 'postgres',
-            'PASSWORD': '@dmin#123',
+            'USER': 'dms_user',
+            'PASSWORD': 'root@dms@0800',
             'HOST': 'localhost',
             'PORT': '5432',
     }
@@ -155,8 +154,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static-admin'      # DMS_API/static papkasi
 # MEDIA
 
-# MEDIA_URL = '/media/'
-MEDIA_URL = 'http://95.130.227.102:8008/media/'
+MEDIA_URL = '/media/'
+# MEDIA_URL = 'http://95.130.227.102:8008/media/'
 MEDIA_ROOT = BASE_DIR / 'media'        # DMS_API/media papkasi
 
 
@@ -181,7 +180,7 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH': False, # Session authni o'chirish JWT bilan ishlashda xatolarni kamaytiradi
     'JSON_EDITOR': True,
-    'DEFAULT_API_URL': 'http://95.130.227.102:8008',
+    # 'DEFAULT_API_URL': 'http://95.130.227.102:8008',
 }
 
 
@@ -200,10 +199,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://95.130.227.102:8008',
-    'http://95.130.227.102:2022',
-    'http://localhost:5173',  # MUHIM: Vue/Vite manzili
-    'http://127.0.0.1:5173',
+    'https://api-edo.tipme.uz',
+    'https://edo.tipme.uz',
+    'http://localhost:5173',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

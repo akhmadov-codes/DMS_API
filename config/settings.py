@@ -208,7 +208,6 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-
 # # Faqat production (server) muhitida ishlashi uchun DEBUG false bo'lganda yoqamiz
 # if not DEBUG:
 #     # W008: Barcha HTTP so'rovlarni HTTPSga yo'naltirish
@@ -222,3 +221,12 @@ logging.basicConfig(
 #     SECURE_HSTS_SECONDS = 31536000 # 1 yil
 #     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 #     SECURE_HSTS_PRELOAD = True
+
+
+# Cookie-larni faqat HTTPS orqali uzatish (rejim tanlovini saqlab qoladi)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Brauzer keshini boshqarish uchun (statik fayllar yangilanganda muammo bo'lmasligi uchun)
+if not DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'

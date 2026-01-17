@@ -128,6 +128,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = "flow_user.CustomUser"
 
+try:
+    from .settings_prod import *
+except ImportError:
+    pass
+
 # CUSTOM SITTINGS
 # # Faqat production (server) muhitida ishlashi uchun DEBUG false bo'lganda yoqamiz
 # if not DEBUG:

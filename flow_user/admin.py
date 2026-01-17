@@ -6,6 +6,10 @@ from import_export.admin import ImportExportModelAdmin
 from .models import CustomUser, Department
 from django.contrib.auth.models import Group  # Guruhlarni import qilish
 
+admin.site.site_header = "DMS API Boshqaruv Paneli"
+admin.site.site_title = "DMS Admin"
+admin.site.index_title = "Xush kelibsiz, Admin!"
+
 # 1. Import mantiqi
 class CustomUserResource(resources.ModelResource):
     department = fields.Field(

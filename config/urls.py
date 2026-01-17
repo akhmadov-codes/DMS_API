@@ -20,7 +20,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('secret-office/', admin.site.urls),
 
     # JWT endpoints
     path('api/token/auth/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -1,0 +1,51 @@
+<!-- templates/admin/base.html -->
+{% extends "admin/base.html" %} {% block extrahead %} {{ block.super }}
+<style>
+    /* Dark mode ni darhol qo'llash (flicker yo'q) */
+    :root {
+        color-scheme: light dark;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body {
+            background-color: #1e1e1e !important;
+            color: #e0e0e0 !important;
+        }
+
+        #header {
+            background: #2d2d2d !important;
+        }
+
+        .module h2,
+        .module caption,
+        .inline-group h2 {
+            background: #3a3a3a !important;
+        }
+
+        input,
+        select,
+        textarea {
+            background-color: #2d2d2d !important;
+            color: #e0e0e0 !important;
+            border-color: #444 !important;
+        }
+
+        a {
+            color: #58a6ff !important;
+        }
+    }
+</style>
+
+<script>
+    // Dark mode ni localStorage dan olish va darhol qo'llash
+    (function () {
+        const darkMode = localStorage.getItem("darkMode");
+        if (
+            darkMode === "true" ||
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+        ) {
+            document.documentElement.setAttribute("data-theme", "dark");
+        }
+    })();
+</script>
+{% endblock %}

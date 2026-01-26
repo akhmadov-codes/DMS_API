@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from import_export import resources, fields
-from import_export.widgets import ForeignKeyWidget
-from import_export.admin import ImportExportModelAdmin
-from .models import CustomUser, Department
 from django.contrib.auth.models import Group  # Guruhlarni import qilish
+from import_export import fields, resources
+from import_export.admin import ImportExportModelAdmin
+from import_export.widgets import ForeignKeyWidget
+
+from .models import CustomUser, Department
 
 admin.site.site_header = "DMS API Boshqaruv Paneli"
 admin.site.site_title = "DMS Admin"
@@ -26,11 +27,11 @@ class CustomUserResource(resources.ModelResource):
 
     def before_import_row(self, row, **kwargs):
         from django.contrib.auth.hashers import make_password
-        
+
         # 1. Parolni shifrlash
         if 'password' in row and row['password']:
             row['password'] = make_password(str(row['password']))
-        
+
         # 2. Bo'limni avtomat yaratish
         dept_name = row.get('department')
         if dept_name:
@@ -52,10 +53,12 @@ class CustomUserResource(resources.ModelResource):
 class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
     resource_class = CustomUserResource
     list_display = ('username', 'first_name', 'last_name', 'position', 'department')
-    
+
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': ('position', 'father_name', 'department', 'profile_image')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {'fields': ('position', 'father_name', 'department', 'profile_image')}),
     )
+
+admin.site.register(Department)

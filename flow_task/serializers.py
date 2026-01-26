@@ -1,9 +1,12 @@
 from rest_framework import serializers
-from .models import Task, Subject, IncomingDocument
-from flow_user.models import CustomUser
+
+# from flow_user.models import CustomUser
 from flow_document.serializers import IncomingDocumentSerializer
-from flow_user.serializers import TaskAssigneeSerializer
 from flow_taskres.serializers import TaskResponseSerializer
+from flow_user.serializers import TaskAssigneeSerializer
+
+from .models import IncomingDocument, Subject, Task
+
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,7 +19,7 @@ class TaskSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(read_only=True)
     assignees = TaskAssigneeSerializer(many=True, read_only=True)
     responses = TaskResponseSerializer(many=True, read_only=True)
-    
+
     # Create/Update uchun bog'liqliklarni id orqali
     document_id = serializers.PrimaryKeyRelatedField(
         queryset=IncomingDocument.objects.all(),
@@ -35,7 +38,7 @@ class TaskSerializer(serializers.ModelSerializer):
     #     source='assignees'
     # )
     assignees_ids = serializers.ListField(
-        child=serializers.CharField(), 
+        child=serializers.CharField(),
         write_only=True,
         required=False
     )
@@ -43,7 +46,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id', 'document', 'responses', 'document_id', 'subject', 'subject_id', 'description', 
-            'due_date', 'assignees', 'assignees_ids', 'status', 
+            'id', 'document', 'responses', 'document_id', 'subject', 'subject_id', 'description',
+            'due_date', 'assignees', 'assignees_ids', 'status',
             'created_at', 'updated_at'
         ]

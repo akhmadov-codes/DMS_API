@@ -48,7 +48,7 @@ SWAGGER_SETTINGS = {
     "DEFAULT_SCHEMES": [
         "https",
     ],
-    "DEFAULT_API_URL": "https://api-edo.tipme.uz/",
+    "DEFAULT_API_URL": "https://api-edo.tipme.uz/" if not settings.DEBUG else None,
 }
 
 # Mixed Content va HTTPS

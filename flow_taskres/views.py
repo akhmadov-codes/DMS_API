@@ -1,16 +1,15 @@
-from rest_framework import viewsets, permissions, mixins, generics
+from django.db import transaction
+from rest_framework import generics, mixins, permissions, viewsets
+
 from .models import TaskResponse, TaskResponseFile
 from .serializers import TaskResponseSerializer
-from django.db import transaction
+
 
 class TaskResponseFileDeleteView(generics.DestroyAPIView):
     queryset = TaskResponseFile.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
-class TaskResponseViewSet(mixins.CreateModelMixin, 
-                          mixins.UpdateModelMixin, 
-                          mixins.DestroyModelMixin, 
-                          viewsets.GenericViewSet):
+class TaskResponseViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = TaskResponse.objects.all()
     serializer_class = TaskResponseSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -19,9 +18,7 @@ class TaskResponseViewSet(mixins.CreateModelMixin,
         # Serializer validated_data'dan taskni olamiz
         task = serializer.validated_data.get('task')
         with transaction.atomic():
-            # 1. Javobni saqlaymiz (user avtomatik birikadi)
             serializer.save(user=self.request.user)
-            # 2. Task statusini yangilaymiz
             if task.status != 'in_confirmation':
                 task.status = 'in_confirmation'
                 task.save(update_fields=['status', 'updated_at'])

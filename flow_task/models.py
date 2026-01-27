@@ -26,27 +26,9 @@ class Task(models.Model):
         ("high", "Yuqori"),
         ("urgent", "Shoshilinch"),
     ]
-    document = models.ForeignKey(
-        IncomingDocument,
-        on_delete=models.CASCADE,
-        related_name="tasks",
-        null=True,
-        blank=True,
-    )
-    subject = models.ForeignKey(
-        Subject,
-        on_delete=models.SET_NULL,  # Mavzu o'chsa ham vazifa qolsin
-        related_name="tasks",
-        null=True,
-        blank=True,
-    )
-    creator = models.ForeignKey(
-        CustomUser,
-        on_delete=models.SET_NULL,
-        related_name="created_tasks",
-        null=True,
-        verbose_name="Topshiriq beruvchi",
-    )
+    document = models.ForeignKey(IncomingDocument, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True)
+    subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, related_name="tasks", null=True, blank=True)
+    creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="created_tasks", null=True, blank=True, verbose_name="Topshiriq beruvchi")
     description = models.TextField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True, verbose_name="Muddati")
     priority = models.CharField( max_length=10, choices=PRIORITY_CHOICES, default="medium")

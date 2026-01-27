@@ -1,10 +1,11 @@
 from rest_framework import serializers
 
-# from flow_user.models import CustomUser
+#app serializers imports
 from flow_document.serializers import IncomingDocumentSerializer
 from flow_taskres.serializers import TaskResponseSerializer
 from flow_user.serializers import TaskAssigneeSerializer
 
+# models imports
 from .models import IncomingDocument, Subject, Task
 
 
@@ -21,27 +22,9 @@ class TaskSerializer(serializers.ModelSerializer):
     responses = TaskResponseSerializer(many=True, read_only=True)
 
     # Create/Update uchun bog'liqliklarni id orqali
-    document_id = serializers.PrimaryKeyRelatedField(
-        queryset=IncomingDocument.objects.all(),
-        write_only=True,
-        source='document'
-    )
-    subject_id = serializers.PrimaryKeyRelatedField(
-        queryset=Subject.objects.all(),
-        write_only=True,
-        source='subject'
-    )
-    # assignees_ids = serializers.PrimaryKeyRelatedField(
-    #     queryset=CustomUser.objects.all(),
-    #     many=True,
-    #     write_only=True,
-    #     source='assignees'
-    # )
-    assignees_ids = serializers.ListField(
-        child=serializers.CharField(),
-        write_only=True,
-        required=False
-    )
+    document_id = serializers.PrimaryKeyRelatedField(queryset=IncomingDocument.objects.all(), write_only=True, source='document')
+    subject_id = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), write_only=True, source='subject')
+    assignees_ids = serializers.ListField(child=serializers.CharField(), write_only=True, required=False)
 
     class Meta:
         model = Task

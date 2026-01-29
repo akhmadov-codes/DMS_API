@@ -16,7 +16,7 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = False
 # CORS uchun ruxsat:
 CORS_ALLOWED_ORIGINS = [
-    "https://edo.tipme.uz",
+    "https://exa.tipme.uz",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:4173",
@@ -25,7 +25,7 @@ CORS_ALLOWED_ORIGINS = [
 # CSRF uchun ruxsat:
 CSRF_TRUSTED_ORIGINS = [
     "https://api-edo.tipme.uz",
-    "https://edo.tipme.uz",
+    "https://exa.tipme.uz",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:4173",

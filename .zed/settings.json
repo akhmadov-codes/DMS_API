@@ -1,23 +1,23 @@
 {
-  "lsp": {
-    "pyright": {
-      "settings": {
-        "python.analysis.typeCheckingMode": "basic",
-        "python.analysis.diagnosticSeverityOverrides": {
-          "reportGeneralTypeIssues": "none",
-          "reportOptionalMemberAccess": "none",
-          "reportUnknownMemberType": "none",
-          "reportUnknownVariableType": "none",
-          "reportUnknownArgumentType": "none",
-          "reportAttributeAccessIssue": "warning",
+    "lsp": {
+        "pyright": {
+            "settings": {
+                "python.analysis.typeCheckingMode": "basic",
+                "python.analysis.diagnosticSeverityOverrides": {
+                    "reportGeneralTypeIssues": "none",
+                    "reportOptionalMemberAccess": "none",
+                    "reportUnknownMemberType": "none",
+                    "reportUnknownVariableType": "none",
+                    "reportUnknownArgumentType": "none",
+                    "reportAttributeAccessIssue": "warning",
+                },
+            },
         },
-      },
     },
-  },
-  "languages": {
-    "Python": {
-      "format_on_save": "on",
-      "formatter": "language_server",
+    "languages": {
+        "Python": {
+            "format_on_save": "off",
+            "formatter": "language_server",
+        },
     },
-  },
 }

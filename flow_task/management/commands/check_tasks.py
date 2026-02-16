@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = 'Muddati o`tgan vazifalarni rad etish'
 
     def handle(self, *args, **options):
-        today = timezone.now().date()
+        today = timezone.localtime().date()
         updated = Task.objects.filter(
             due_date__lt=today, 
             status__in=['in_progress', 'in_confirmation']

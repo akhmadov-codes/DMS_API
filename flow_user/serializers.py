@@ -1,4 +1,4 @@
-from rest_framework import serializers
+﻿from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser, Department
 from django.contrib.auth.models import Group
@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = [ 'id', 'name' ]
+        fields = [ 'id', 'name', 'created_at' ]
 class TaskAssigneeSerializer(serializers.ModelSerializer):
     """Faqat ism-sharif va bo'limni qaytaruvchi serializer"""
     department_name = serializers.ReadOnlyField(source='department.name')
@@ -33,7 +33,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'groups', 'father_name', 'last_name', 'first_name', 'email', 'department', 'department_id', 'position', 'password']
+        fields = ['id', 'username', 'is_rector', 'groups', 'father_name', 'last_name', 'first_name', 'email', 'department', 'department_id', 'position', 'password', 'date_joined']
 
     def create(self, validated_data):
             password = validated_data.pop('password')
@@ -63,7 +63,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer(read_only=True)
     class Meta:
         model = CustomUser
-        fields = ['id', 'groups', 'username', 'father_name', 'last_name', 'first_name', 'email', 'department', 'position']
+        fields = ['id', 'is_rector', 'groups', 'username', 'father_name', 'last_name', 'first_name', 'email', 'department', 'position']
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -4,6 +4,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, pagination, permissions, status, viewsets
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from drf_yasg.utils import swagger_auto_schema
 
 from .models import (
     Attachment,
@@ -12,6 +17,7 @@ from .models import (
     IncomingDocument,
     Journal,
     Sender,
+    Signer
 )
 from .serializers import (
     AttachmentSerializer,
@@ -20,7 +26,45 @@ from .serializers import (
     IncomingDocumentSerializer,
     JournalSerializer,
     SenderSerializer,
+    SignerSerializer
 )
+
+# class SingerPagination(pagination.PageNumberPagination):
+#     page_size = 10
+#     page_size_query_param = 'page_size'
+#     max_page_size = 100
+
+class SignercollectionViews(APIView):
+    serializer_classes = SignerSerializer
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        signers = Signer.objects.all()
+        serializer = SignerSerializer(signers, many=True)
+        return Response({ 'result':serializer.data }, status=status.HTTP_200_OK)
+    @swagger_auto_schema(request_body=SignerSerializer)
+    def post(self, request):
+        signer = request.data
+        serializer = SignerSerializer(data=signer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({ 'result':serializer.data }, status=status.HTTP_201_CREATED)
+        return Response({ 'result':serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+    
+class SignerinstanceViews(APIView):
+    serializer_classes = SignerSerializer
+    permission_classes = [IsAuthenticated]
+    def get(self, request, id):
+        signer = get_object_or_404(Signer, id=id)
+        serializer = SignerSerializer(signer)
+        return Response({ 'result': serializer.data }, status=status.HTTP_200_OK)
+    @swagger_auto_schema(request_body=SignerSerializer)
+    def patch(self, request, id):
+        signer = get_object_or_404(Signer, id=id)
+        serializer = SignerSerializer(signer, data=request.data, partial=True)
+        return Response({ 'result': serializer.data }, status=status.HTTP_200_OK)
+    def delete(self, request, id):
+        signer = get_object_or_404(Signer, id=id).delete()
+        return Response({ 'result': 'sucssess' }, status=status.HTTP_204_NO_CONTENT)
 
 
 # Pagination (O'zgarishsiz qoldi)

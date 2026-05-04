@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Group  # Guruhlarni import qilish
+from django.contrib.auth.models import Group
 from import_export import fields, resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget
@@ -37,7 +37,7 @@ class CustomUserResource(resources.ModelResource):
         if dept_name:
             Department.objects.get_or_create(name=dept_name)
 
-    def after_save_instance(self, instance, using_data, dry_run, **kwargs): # <--- **kwargs qo'shildi
+    def after_save_instance(self, instance, using_data, dry_run, **kwargs):
         """Foydalanuvchi bazaga saqlangandan so'ng ishlaydi"""
         if not dry_run:
             try:
@@ -55,7 +55,7 @@ class CustomUserAdmin(ImportExportModelAdmin, UserAdmin):
     list_display = ('username', 'first_name', 'last_name', 'position', 'department')
 
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('position', 'father_name', 'department', 'profile_image')}),
+        (None, {'fields': ('position', 'father_name', 'department', 'profile_image', 'is_rector')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {'fields': ('position', 'father_name', 'department', 'profile_image')}),

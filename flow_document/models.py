@@ -10,6 +10,12 @@ def attachment_path(instance, filename):
     now = timezone.now()
     return f"attachments/{now.year}/{now.month}/{filename}"
 
+class Signer(models.Model):
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    def __str__(self):
+        return f'{self.last_name[:1]}.{self.first_name}'
+
 class DeliveryType(models.Model):
     name = models.CharField(max_length=255, unique=True)
     def __str__(self):
@@ -40,11 +46,12 @@ class IncomingDocument(models.Model):
     ]
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="documents")
     in_number = models.CharField(max_length=50, blank=True, null=True, db_index=True)
+    reg_number = models.PositiveIntegerField(blank=True, null=True, db_index=True)
     in_date = models.DateField(blank=True, null=True, db_index=True)
     out_number = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     delivery_type = models.ForeignKey(DeliveryType, on_delete=models.SET_NULL, blank=True, null=True, related_name="documents",)
     document_type = models.ForeignKey(DocumentType, on_delete=models.SET_NULL, blank=True, null=True, related_name="documents",)
-    signer = models.CharField(max_length=255, blank=True, null=True)
+    signer_type = models.ForeignKey(Signer, on_delete=models.SET_NULL, null=True, blank=True, related_name="documents")
     journal = models.ForeignKey(Journal, on_delete=models.SET_NULL, blank=True, null=True, related_name="documents",)
     title = models.TextField()
     sender = models.ForeignKey(Sender, on_delete=models.SET_NULL, blank=True, null=True, related_name="documents",)

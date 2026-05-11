@@ -47,6 +47,7 @@ class IncomingDocument(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="documents")
     in_number = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     reg_number = models.PositiveIntegerField(blank=True, null=True, db_index=True)
+    reg_data = models.DateField(null=True, blank=True)
     in_date = models.DateField(blank=True, null=True, db_index=True)
     out_number = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     delivery_type = models.ForeignKey(DeliveryType, on_delete=models.SET_NULL, blank=True, null=True, related_name="documents",)

@@ -4,11 +4,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from flow_user.models import CustomUser
-
-from .models import Subject, Task
-from .serializers import SubjectSerializer, TaskSerializer
+from .models import Subject, Task, TaskDescription
+from .serializers import SubjectSerializer, TaskSerializer, TaskDescriptionSerializer
 
 
 # Pagination
@@ -24,6 +25,11 @@ class SubjectViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+# TaskDescription CRUD APIViews
+class TaskdiscriptionViewSet(viewsets.ModelViewSet):
+    queryset = TaskDescription.objects.all()
+    serializer_class = TaskDescriptionSerializer
+    permission_classes = [IsAuthenticated]
 
 # Task CRUD
 class TaskFilter(django_filters.FilterSet):

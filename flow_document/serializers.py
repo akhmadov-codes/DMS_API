@@ -61,7 +61,7 @@ class IncomingDocumentSerializer(serializers.ModelSerializer):
     sender_id = serializers.PrimaryKeyRelatedField( queryset=Sender.objects.all(), source='sender', write_only=True, required=False, allow_null=True )
     class Meta:
         model = IncomingDocument
-        fields = [ 'id', 'user', 'in_number', 'reg_number', 'in_date', 'out_number', 'delivery_type', 'delivery_type_id', 'document_type', 'document_type_id', 'journal', 'journal_id', 'sender', 
+        fields = [ 'id', 'user', 'in_number', 'reg_number', 'reg_data', 'in_date', 'out_number', 'delivery_type', 'delivery_type_id', 'document_type', 'document_type_id', 'journal', 'journal_id', 'sender', 
                   'sender_id', 'signer_type', 'signer_type_id', 'title', 'summary', 'status', 'attachments', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at', 'status', 'user']
 

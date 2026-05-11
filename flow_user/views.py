@@ -1,4 +1,4 @@
-from rest_framework import viewsets, response
+﻿from rest_framework import viewsets, response
 from .models import CustomUser, Department
 from .serializers import CustomUserSerializer, DepartmentSerializer
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser

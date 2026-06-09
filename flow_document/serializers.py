@@ -47,7 +47,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 class IncomingDocumentSerializer(serializers.ModelSerializer):
     # reg_number = serializers.IntegerField(read_only=True)
-    reg_number = serializers.SerializerMethodField()
+    # reg_number = serializers.SerializerMethodField()
     delivery_type = DeliveryTypeSerializer(read_only=True)
     document_type = DocumentTypeSerializer(read_only=True)
     journal = JournalSerializer(read_only=True)
@@ -65,18 +65,18 @@ class IncomingDocumentSerializer(serializers.ModelSerializer):
                   'sender_id', 'signer_type', 'signer_type_id', 'title', 'summary', 'status', 'attachments', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at', 'status', 'user']
 
-    def create(self, validated_data):
-        last_doc = IncomingDocument.objects.order_by('-reg_number').first()
-        if last_doc and last_doc.reg_number is not None:
-            new_number = (last_doc.reg_number + 1)
-        else:
-            new_number = 1
-        validated_data['reg_number'] = new_number
-        return super().create(validated_data)
+    # def create(self, validated_data):
+    #     last_doc = IncomingDocument.objects.order_by('-reg_number').first()
+    #     if last_doc and last_doc.reg_number is not None:
+    #         new_number = (last_doc.reg_number + 1)
+    #     else:
+    #         new_number = 1
+    #     validated_data['reg_number'] = new_number
+    #     return super().create(validated_data)
     
-    def get_reg_number(self, obj):
-        if obj.reg_number:
-            return f'02-07-{obj.reg_number}/026'
+    # def get_reg_number(self, obj):
+    #     if obj.reg_number:
+    #         return f'02-07-{obj.reg_number}/026'
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

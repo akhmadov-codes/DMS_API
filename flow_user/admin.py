@@ -7,8 +7,8 @@ from import_export.widgets import ForeignKeyWidget
 
 from .models import CustomUser, Department
 
-admin.site.site_header = "DMS API Boshqaruv Paneli"
-admin.site.site_title = "DMS Admin"
+admin.site.site_header = "Tibbiyot xodimlarning kasbiy malakasini rivojlantirish markazi boshqaruv paneli"
+admin.site.site_title = "Admin"
 admin.site.index_title = "Xush kelibsiz, Admin!"
 
 # 1. Import mantiqi

@@ -111,12 +111,13 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response({**stats, "results": serializer.data})
 
     def perform_create(self, serializer):
-        assignees_data = serializer.validated_data.pop("assignees_ids", [])
-        task = serializer.save()
-        self._handle_assignees(task, assignees_data)
+        # assignees_data = serializer.validated_data.pop("assignees_ids", [])
+        # task = serializer.save()
+        # self._handle_assignees(task, assignees_data)
+        serializer.save()
 
     def perform_update(self, serializer):
-        assignees_data = serializer.validated_data.pop("assignees_ids", [])
+        # assignees_data = serializer.validated_data.pop("assignees_ids", [])
         task = serializer.save()
         if task.status == 'done' and task.due_date:
             last_response = task.responses.order_by('-created_at').first()
@@ -125,12 +126,12 @@ class TaskViewSet(viewsets.ModelViewSet):
                 if response_date > task.due_date:
                     task.status = 'done_overdue'
                     task.save(update_fields=['status'])
-        self._handle_assignees(task, assignees_data)
+        # self._handle_assignees(task, assignees_data)
 
 
-    def _handle_assignees(self, task, assignees_data):
-        if "all-users" in assignees_data:
-            all_users = CustomUser.objects.filter(is_active=True)
-            task.assignees.set(all_users)
-        elif assignees_data:
-            task.assignees.set(assignees_data)
+    # def _handle_assignees(self, task, assignees_data):
+    #     if "all-users" in assignees_data:
+    #         all_users = CustomUser.objects.filter(is_active=True)
+    #         task.assignees.set(all_users)
+    #     elif assignees_data:
+    #         task.assignees.set(assignees_data)

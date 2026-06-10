@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "cmf*-v+=2m5pc%4xu_e7fu(^ppzs7sn1_&4f+j^2$t_69)*+4e"
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     "api-edo.tipme.uz",
     "edo.tipme.uz",

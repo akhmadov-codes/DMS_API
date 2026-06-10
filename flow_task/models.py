@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-
 from flow_document.models import IncomingDocument
 from flow_user.models import CustomUser
 
@@ -34,10 +33,10 @@ class Task(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, related_name="tasks", null=True, blank=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="created_tasks", null=True, blank=True, verbose_name="Topshiriq beruvchi")
     description = models.TextField(blank=True, null=True)
-    task_description = models.ForeignKey(TaskDescription, on_delete=models.CASCADE, null=True, blank=True, related_name='tasks', default='Topshiriq o\'z vaqtida ijrosi ta\'minlansin.')
+    task_description = models.ForeignKey(TaskDescription, on_delete=models.CASCADE, null=True, blank=True, related_name='tasks')
     due_date = models.DateField(blank=True, null=True, verbose_name="Muddati")
     priority = models.CharField( max_length=10, choices=PRIORITY_CHOICES, default="medium")
-    assignees = models.ManyToManyField( CustomUser, related_name="assigned_tasks", blank=True, verbose_name="Mas'ullar")
+    assignees = models.ManyToManyField(CustomUser, through='TaskAssignee', related_name="assigned_tasks", blank=True, verbose_name="Mas'ullar")
     status = models.CharField( max_length=20, choices=STATUS_CHOICES, default="in_progress")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -47,7 +46,6 @@ class Task(models.Model):
 
     @property
     def is_overdue(self):
-        """Muddati o'tganligini tekshirish (dinamik)"""
         if (
             self.due_date
             and self.due_date < timezone.now().date()
@@ -58,3 +56,13 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.subject} - {self.status}"
+
+
+class TaskAssignee(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0, verbose_name="Tanlov tartibi")
+
+    class Meta:
+        ordering = ['order']
+        unique_together = ('task', 'user')

@@ -8,7 +8,6 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = [ 'id', 'name', 'created_at' ]
 class TaskAssigneeSerializer(serializers.ModelSerializer):
-    """Faqat ism-sharif va bo'limni qaytaruvchi serializer"""
     department_name = serializers.ReadOnlyField(source='department.name')
     class Meta:
         model = CustomUser
@@ -40,7 +39,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             user = CustomUser(**validated_data)
             user.set_password(password)
             user.save()
-            # Default group qo‘shish
             default_group, created = Group.objects.get_or_create(name='user')
             user.groups.add(default_group)
             return user

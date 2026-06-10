@@ -16,10 +16,11 @@ class TaskDescriptionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TaskSerializer(serializers.ModelSerializer):
+    assignees = serializers.SerializerMethodField()
     document = IncomingDocumentSerializer(read_only=True)
     subject = SubjectSerializer(read_only=True)
     task_description = TaskDescriptionSerializer(read_only=True)
-    assignees = TaskAssigneeSerializer(many=True, read_only=True)
+    # assignees = TaskAssigneeSerializer(many=True, read_only=True)
     responses = TaskResponseSerializer(many=True, read_only=True)
     document_id = serializers.PrimaryKeyRelatedField(queryset=IncomingDocument.objects.all(), write_only=True, source='document')
     subject_id = serializers.PrimaryKeyRelatedField(queryset=Subject.objects.all(), write_only=True, source='subject')
@@ -33,6 +34,21 @@ class TaskSerializer(serializers.ModelSerializer):
             'due_date', 'assignees', 'assignees_ids', 'status',
             'created_at', 'updated_at'
         ]
+
+    def get_assignees(self, obj):
+        assignees_queryset = TaskAssignee.objects.filter(task=obj).order_by('order')
+        
+        flat_assignees = []
+        for assignee in assignees_queryset:
+            user_data = TaskAssigneeSerializer(assignee.user).data
+            flat_data = {
+                "task_assignee_id": assignee.id, 
+                "order": assignee.order,        
+                **user_data                     
+            }
+            flat_assignees.append(flat_data)
+            
+        return flat_assignees
 
     def create(self, validated_data):
         assignee_ids = validated_data.pop('assignees_ids', [])

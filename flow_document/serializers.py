@@ -8,7 +8,7 @@ class SignerSerializer(serializers.ModelSerializer):
         model = Signer
         fields = [ 'id', 'last_name', 'first_name', 'full_name' ]
     def get_full_name(self, obj):
-        return f'{obj.last_name[:1]}.{obj.first_name}'
+        return obj.short_name
 class DeliveryTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryType

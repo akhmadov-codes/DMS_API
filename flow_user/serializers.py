@@ -1,4 +1,4 @@
-﻿from rest_framework import serializers
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import CustomUser, Department
 from django.contrib.auth.models import Group
@@ -14,9 +14,10 @@ class TaskAssigneeSerializer(serializers.ModelSerializer):
         fields = ['id', 'last_name', 'first_name', 'father_name', 'department_name']
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    # Yaratishda majburiy, tahrirlashda ixtiyoriy (validate() ga qarang)
     password = serializers.CharField(
         write_only=True,
-        required=True,
+        required=False,
         min_length=8
     )
     groups = serializers.SlugRelatedField(
@@ -34,23 +35,28 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'username', 'is_rector', 'groups', 'father_name', 'last_name', 'first_name', 'email', 'department', 'department_id', 'position', 'password', 'date_joined']
 
+    def validate(self, attrs):
+        if self.instance is None and not attrs.get('password'):
+            raise serializers.ValidationError({'password': ['This field is required.']})
+        return attrs
+
     def create(self, validated_data):
-            password = validated_data.pop('password')
-            user = CustomUser(**validated_data)
-            user.set_password(password)
-            user.save()
-            default_group, created = Group.objects.get_or_create(name='user')
-            user.groups.add(default_group)
-            return user
-    
+        password = validated_data.pop('password')
+        user = CustomUser(**validated_data)
+        user.set_password(password)
+        user.save()
+        default_group, _ = Group.objects.get_or_create(name='user')
+        user.groups.add(default_group)
+        return user
+
     def update(self, instance, validated_data):
-            password = validated_data.pop('password', None)
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            if password:
-                instance.set_password(password)
-            instance.save()
-            return instance
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 class UserProfileSerializer(serializers.ModelSerializer):
     groups = serializers.SlugRelatedField(

@@ -1,29 +1,36 @@
+# Apache + mod_wsgi konfiguratsiyasi (DMS API uchun)
+# Loyiha joylashuvi: /dms/www/DMS_API  (virtual muhit: flow_venv)
+# Agar server boshqa papkada bo'lsa, quyidagi yo'llarni almashtiring.
+
 <VirtualHost *:2020>
-    DocumentRoot /app_and_apps/services-admin/apps
+    ServerName api-edo.tipme.uz
 
-    # STATIC fayllar
-    Alias /static /app_and_apps/services-admin/apps/static-files
-    <Directory /app_and_apps/services-admin/apps/static-files>
+    # STATIC fayllar (python manage.py collectstatic -> static-admin)
+    Alias /static /dms/www/DMS_API/static-admin
+    <Directory /dms/www/DMS_API/static-admin>
         Require all granted
     </Directory>
 
-    # MEDIA fayllar
-    Alias /media /app_and_apps/services-admin/apps/media
-    <Directory /app_and_apps/services-admin/apps/media>
+    # MEDIA fayllar (yuklangan hujjatlar)
+    Alias /media /dms/www/DMS_API/media
+    <Directory /dms/www/DMS_API/media>
         Require all granted
     </Directory>
 
-    # WSGI konfiguratsiyasi
-    <Directory /app_and_apps/services-admin/apps/config>
+    # WSGI
+    <Directory /dms/www/DMS_API/config>
         <Files wsgi.py>
             Require all granted
         </Files>
     </Directory>
 
-    <Directory /app_and_apps/services-admin/apps>
-        Require all granted
-    </Directory>
+    WSGIDaemonProcess dms-api python-home=/dms/www/DMS_API/flow_venv python-path=/dms/www/DMS_API
+    WSGIProcessGroup dms-api
+    WSGIScriptAlias / /dms/www/DMS_API/config/wsgi.py
 
-    WSGIDaemonProcess services-admin python-home=/app_and_apps/services-admin/venv python-path=/app_and_apps/services-admin/>    WSGIProcessGroup services-admin
-    WSGIScriptAlias / /app_and_apps/services-admin/apps/config/wsgi.py
-</VirtualHost> confni mening dms_api ga mosla
+    # MUHIM: busiz mod_wsgi "Authorization" sarlavhasini o'chirib yuboradi va JWT ishlamaydi
+    WSGIPassAuthorization On
+
+    ErrorLog ${APACHE_LOG_DIR}/dms-api-error.log
+    CustomLog ${APACHE_LOG_DIR}/dms-api-access.log combined
+</VirtualHost>

@@ -39,7 +39,6 @@ Thumbs.db
 *.iml
 *.ipr
 *.iws
-.idea/
 
 # Migrations cache (ixtiyoriy: ba'zida saqlanadi)
 */migrations/__pycache__/

@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from flow_document.models import IncomingDocument
 from flow_user.models import CustomUser
 
@@ -43,16 +42,6 @@ class Task(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-
-    @property
-    def is_overdue(self):
-        if (
-            self.due_date
-            and self.due_date < timezone.now().date()
-            and self.status != "done"
-        ):
-            return True
-        return False
 
     def __str__(self):
         return f"{self.subject} - {self.status}"

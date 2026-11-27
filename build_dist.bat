@@ -11,7 +11,8 @@ if exist dist\flow_venv rmdir /s /q dist\flow_venv
 
 REM 4. Kerakli qo'shimcha fayllarni nusxalash
 copy requirements.txt dist\
-copy .env dist\
+REM Serverdagi .env alohida saqlanadi (DEBUG=False, SECRET_KEY, DB_*); lokal .env nusxalanmaydi
+copy .env.example dist\
 
 echo Build muvaffaqiyatli yakunlandi!
 pause

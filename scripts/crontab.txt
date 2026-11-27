@@ -1,2 +1,3 @@
-# chek_test /dms/www/DMS_API/scripts/run_check_tasks.sh
-
+# DMS API cron vazifalari (o'rnatish: crontab -e)
+# Muddati o'tgan topshiriqlarni har kuni 00:05 da tekshirish
+5 0 * * * /dms/www/DMS_API/scripts/run_check_tasks.sh

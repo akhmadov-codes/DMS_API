@@ -39,8 +39,12 @@ Thumbs.db
 *.iml
 *.ipr
 *.iws
-.idea/
 
 # Migrations cache (ixtiyoriy: ba'zida saqlanadi)
 */migrations/__pycache__/
 */migrations/*.pyc
+# Muhit sozlamalari (maxfiy)
+.env
+
+# collectstatic natijasi
+static-admin/

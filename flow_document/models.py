@@ -13,8 +13,12 @@ def attachment_path(instance, filename):
 class Signer(models.Model):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     first_name = models.CharField(max_length=255, blank=True, null=True)
+    @property
+    def short_name(self):
+        return f'{(self.last_name or "")[:1]}.{self.first_name or ""}'
+
     def __str__(self):
-        return f'{self.last_name[:1]}.{self.first_name}'
+        return self.short_name
 
 class DeliveryType(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -75,10 +79,14 @@ class Attachment(models.Model):
     extension = models.CharField(max_length=10, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def extension_of(filename):
+        _, ext = os.path.splitext(filename or "")
+        return ext.lower().lstrip(".")[:10]
+
     def save(self, *args, **kwargs):
         if self.file and not self.extension:
-            _, ext = os.path.splitext(self.file.name)
-            self.extension = ext.lower().lstrip(".")
+            self.extension = self.extension_of(self.file.name)
         super().save(*args, **kwargs)
 
     def __str__(self):

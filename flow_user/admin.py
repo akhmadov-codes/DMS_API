@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
@@ -6,6 +8,8 @@ from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget
 
 from .models import CustomUser, Department
+
+logger = logging.getLogger(__name__)
 
 admin.site.site_header = "Tibbiyot xodimlarning kasbiy malakasini rivojlantirish markazi boshqaruv paneli"
 admin.site.site_title = "Admin"
@@ -46,7 +50,7 @@ class CustomUserResource(resources.ModelResource):
                 # Foydalanuvchiga guruhni qo'shamiz
                 instance.groups.add(group)
             except Exception as e:
-                print(f"Guruh biriktirishda xato: {e}")
+                logger.error("Guruh biriktirishda xato: %s", e)
 
 # 2. Admin panelda sozlash
 @admin.register(CustomUser)

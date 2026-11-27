@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
+from flow_user.permissions import is_manager
 from .models import TaskResponse, TaskResponseFile
 
 class TaskResponseFileSerializer(serializers.ModelSerializer):
@@ -21,7 +22,7 @@ class TaskResponseSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         task = attrs.get('task')
         # Faqat vazifaga biriktirilganlar yoki admin javob yoza oladi
-        if task and request and not request.user.groups.filter(name__in=['admin', 'devonxona']).exists():
+        if task and request and not is_manager(request.user):
             if not task.assignees.filter(id=request.user.id).exists():
                 raise serializers.ValidationError("Siz ushbu vazifaga biriktirilmagansiz!")
         return attrs

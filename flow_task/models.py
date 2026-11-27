@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import timezone
+from flow_appeal.models import OralAppeal
 from flow_document.models import IncomingDocument
 from flow_user.models import CustomUser
 
@@ -30,10 +30,12 @@ class Task(models.Model):
         ("urgent", "Shoshilinch"),
     ]
     document = models.ForeignKey(IncomingDocument, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True)
+    # Og'zaki murojaat bo'yicha topshiriq (hujjat o'rniga). Ikkalasidan biri bo'ladi.
+    appeal = models.ForeignKey(OralAppeal, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, related_name="tasks", null=True, blank=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="created_tasks", null=True, blank=True, verbose_name="Topshiriq beruvchi")
     description = models.TextField(blank=True, null=True)
-    task_description = models.ForeignKey(TaskDescription, on_delete=models.CASCADE, null=True, blank=True, related_name='tasks')
+    task_description = models.ForeignKey(TaskDescription, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
     due_date = models.DateField(blank=True, null=True, verbose_name="Muddati")
     priority = models.CharField( max_length=10, choices=PRIORITY_CHOICES, default="medium")
     assignees = models.ManyToManyField(CustomUser, through='TaskAssignee', related_name="assigned_tasks", blank=True, verbose_name="Mas'ullar")
@@ -43,16 +45,6 @@ class Task(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-
-    @property
-    def is_overdue(self):
-        if (
-            self.due_date
-            and self.due_date < timezone.now().date()
-            and self.status != "done"
-        ):
-            return True
-        return False
 
     def __str__(self):
         return f"{self.subject} - {self.status}"
